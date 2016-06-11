@@ -78,6 +78,10 @@ public class SnakeHeadSegment : SnakeSegment
         {
             base.MoveTo(newPosition);
         }
+        // Call SnakeEnteredPosition at the very end. If we are moving into the
+        // space currently occupied by the tail, we want to call SnakeEnteredPosition
+        // after the tail calls SnakeLeftPosition so that the BoardController
+        // knows there is still a snake there.
         BoardController.sharedInstance.SnakeEnteredPosition(newPosition);
     }
 
@@ -92,10 +96,16 @@ public class SnakeHeadSegment : SnakeSegment
 
         if (hit.transform != null)
         {
-            // The snake cannot move onto snake segments or walls,
-            // so call GameOver and do not complete the move.
-            if (hit.transform.GetComponent<SnakeSegment>() != null ||
-                hit.transform.GetComponent<Wall>() != null)
+            // Look for game objects with which the snake can collide.
+            Wall wall = hit.transform.GetComponent<Wall>();
+            SnakeSegment snakeSegment = hit.transform.GetComponent<SnakeSegment>();
+
+            // The snake can move to the position currently occupied by the tail
+            // if the tail is going to move out of the way. i.e. if we are not adding a segment this move.
+            bool hittingSnakeSegment = (snakeSegment != null && (!(snakeSegment is SnakeTailSegment) || addSegmentOnNextMove));
+            bool hittingWall = (wall != null);
+
+            if (hittingSnakeSegment || hittingWall)
             {
                 GameController.sharedInstance.GameOver();
             }
