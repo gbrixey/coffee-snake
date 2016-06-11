@@ -22,13 +22,13 @@ public class SnakeHeadSegment : SnakeSegment
         if (enabled)
         {
             movementController.UpdateDirection();
-            AttemptMoveTo(PositionAfterMoving(1));
+            AttemptMoveTo(NextPosition());
         }
     }
 
     private void OnDisable()
     {
-        Direction nextSegmentDirection = GetDirection(nextSegment.transform.position, transform.position);
+        Direction nextSegmentDirection = MovementController.GetDirection(nextSegment.transform.position, transform.position);
         switch (nextSegmentDirection)
         {
             case Direction.up:
@@ -46,28 +46,14 @@ public class SnakeHeadSegment : SnakeSegment
         }
     }
 
-    public override void UpdateSprite(Direction nextSegmentDirection)
+    public override void UpdateSprite()
     {
         boxCollider.enabled = false;
-        RaycastHit2D hit = Physics2D.Linecast(transform.position, PositionAfterMoving(2));
+        RaycastHit2D hit = Physics2D.Linecast(transform.position, NextPosition());
         boxCollider.enabled = true;
 
         bool aboutToGetCoffee = (hit.transform != null && hit.transform.GetComponent<Coffee>() != null);
-        switch (nextSegmentDirection)
-        {
-            case Direction.up:
-                spriteRenderer.sprite = aboutToGetCoffee ? SpriteController.sharedInstance.upBiteSprite : SpriteController.sharedInstance.upHeadSprite;
-                break;
-            case Direction.left:
-                spriteRenderer.sprite = aboutToGetCoffee ? SpriteController.sharedInstance.leftBiteSprite : SpriteController.sharedInstance.leftHeadSprite;
-                break;
-            case Direction.right:
-                spriteRenderer.sprite = aboutToGetCoffee ? SpriteController.sharedInstance.rightBiteSprite : SpriteController.sharedInstance.rightHeadSprite;
-                break;
-            case Direction.down:
-                spriteRenderer.sprite = aboutToGetCoffee ? SpriteController.sharedInstance.downBiteSprite : SpriteController.sharedInstance.downHeadSprite;
-                break;
-        }
+        spriteRenderer.sprite = SpriteController.sharedInstance.GetSnakeHeadSprite(movementController.currentDirection, aboutToGetCoffee);
     }
 
     protected override void MoveTo(Vector2 newPosition)
@@ -77,25 +63,22 @@ public class SnakeHeadSegment : SnakeSegment
             addSegmentOnNextMove = false;
 
             Vector2 oldPosition = transform.position;
-            rigidBody.MovePosition(newPosition);
-
+            transform.position = newPosition;
 
             SnakeSegment newSegment = BoardController.sharedInstance.NewSnakeSegment(oldPosition);
             newSegment.nextSegment = nextSegment;
             newSegment.nextSegment.previousSegment = newSegment;
             newSegment.previousSegment = this;
-            nextSegment = newSegment;
+            newSegment.UpdateSprite();
 
-            newSegment.previousSegmentDirection = movementController.currentDirection;
-            Direction nextDirection = GetDirection(oldPosition, newSegment.nextSegment.transform.position);
-            newSegment.UpdateSprite(nextDirection);
+            nextSegment = newSegment;
+            UpdateSprite();
         }
         else
         {
             base.MoveTo(newPosition);
         }
         BoardController.sharedInstance.SnakeEnteredPosition(newPosition);
-        UpdateSprite(movementController.currentDirection);
     }
 
     private void AttemptMoveTo(Vector2 newPosition)
@@ -133,30 +116,24 @@ public class SnakeHeadSegment : SnakeSegment
         }
     }
 
-    private Vector2 PositionAfterMoving(int numberOfMoves)
+    private Vector2 NextPosition()
     {
-        float totalMovementAmount = movementAmount * numberOfMoves;
         Vector2 newPosition = transform.position;
         switch (movementController.currentDirection)
         {
             case Direction.up:
-                newPosition.y += totalMovementAmount;
+                newPosition.y += movementAmount;
                 break;
             case Direction.left:
-                newPosition.x -= totalMovementAmount;
+                newPosition.x -= movementAmount;
                 break;
             case Direction.right:
-                newPosition.x += totalMovementAmount;
+                newPosition.x += movementAmount;
                 break;
             case Direction.down:
-                newPosition.y -= totalMovementAmount;
+                newPosition.y -= movementAmount;
                 break;
         }
         return newPosition;
-    }
-
-    private void UpdateSprite()
-    {
-
     }
 }

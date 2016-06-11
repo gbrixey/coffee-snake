@@ -4,35 +4,17 @@ using Direction = MovementController.Direction;
 
 public class SnakeTailSegment : SnakeSegment
 {
-    public override void UpdateSprite(Direction nextSegmentDirection)
+    public override void UpdateSprite()
     {
-        UpdateSprite();
+        Direction previousSegmentDirection = MovementController.GetDirection(transform.position, previousSegment.transform.position);
+        spriteRenderer.sprite = SpriteController.sharedInstance.GetSnakeTailSprite(previousSegmentDirection);
     }
 
     protected override void MoveTo(Vector2 newPosition)
     {
         Vector2 oldPosition = transform.position;
-        rigidBody.MovePosition(newPosition);
+        transform.position = newPosition;
         BoardController.sharedInstance.SnakeLeftPosition(oldPosition);
         UpdateSprite();
-    }
-
-    private void UpdateSprite()
-    {
-        switch (previousSegmentDirection)
-        {
-            case Direction.up:
-                spriteRenderer.sprite = SpriteController.sharedInstance.downTailSprite;
-                break;
-            case Direction.left:
-                spriteRenderer.sprite = SpriteController.sharedInstance.rightTailSprite;
-                break;
-            case Direction.right:
-                spriteRenderer.sprite = SpriteController.sharedInstance.leftTailSprite;
-                break;
-            case Direction.down:
-                spriteRenderer.sprite = SpriteController.sharedInstance.upTailSprite;
-                break;
-        }
     }
 }

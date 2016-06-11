@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Direction = MovementController.Direction;
 
 public class SpriteController : MonoBehaviour
 {
@@ -37,6 +38,99 @@ public class SpriteController : MonoBehaviour
         else if (sharedInstance != this)
         {
             Destroy(gameObject);
+        }
+
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public Sprite GetSnakeHeadSprite(Direction movementDirection, bool bite)
+    {
+        switch (movementDirection)
+        {
+            case Direction.up:
+                return bite ? SpriteController.sharedInstance.upBiteSprite : SpriteController.sharedInstance.upHeadSprite;
+            case Direction.left:
+                return bite ? SpriteController.sharedInstance.leftBiteSprite : SpriteController.sharedInstance.leftHeadSprite;
+            case Direction.right:
+                return bite ? SpriteController.sharedInstance.rightBiteSprite : SpriteController.sharedInstance.rightHeadSprite;
+            case Direction.down:
+                return bite ? SpriteController.sharedInstance.downBiteSprite : SpriteController.sharedInstance.downHeadSprite;
+            default:
+                return null;
+        }
+    }
+
+    public Sprite GetSnakeTailSprite(Direction previousSegmentDirection)
+    {
+        switch (previousSegmentDirection)
+        {
+            case Direction.up:
+                return SpriteController.sharedInstance.downTailSprite;
+            case Direction.left:
+                return SpriteController.sharedInstance.rightTailSprite;
+            case Direction.right:
+                return SpriteController.sharedInstance.leftTailSprite;
+            case Direction.down:
+                return SpriteController.sharedInstance.upTailSprite;
+            default:
+                return null;
+        }
+    }
+
+    public Sprite GetSnakeSegmentSprite(Direction previousSegmentDirection, Direction nextSegmentDirection)
+    {
+        switch (nextSegmentDirection)
+        {
+            case Direction.up:
+                switch (previousSegmentDirection)
+                {
+                    case Direction.left:
+                        return lowerRightCornerSprite;
+                    case Direction.right:
+                        return lowerLeftCornerSprite;
+                    case Direction.down:
+                        return verticalSprite;
+                    default:
+                        return null;
+                }
+            case Direction.left:
+                switch (previousSegmentDirection)
+                {
+                    case Direction.up:
+                        return lowerRightCornerSprite;
+                    case Direction.right:
+                        return horizontalSprite;
+                    case Direction.down:
+                        return upperRightCornerSprite;
+                    default:
+                        return null;
+                }
+            case Direction.right:
+                switch (previousSegmentDirection)
+                {
+                    case Direction.up:
+                        return lowerLeftCornerSprite;
+                    case Direction.left:
+                        return horizontalSprite;
+                    case Direction.down:
+                        return upperLeftCornerSprite;
+                    default:
+                        return null;
+                }
+            case Direction.down:
+                switch (previousSegmentDirection)
+                {
+                    case Direction.up:
+                        return verticalSprite;
+                    case Direction.left:
+                        return upperRightCornerSprite;
+                    case Direction.right:
+                        return upperLeftCornerSprite;
+                    default:
+                        return null;
+                }
+            default:
+                return null;
         }
     }
 }

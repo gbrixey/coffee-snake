@@ -3,7 +3,13 @@ using System.Collections;
 
 public class MovementController : MonoBehaviour
 {
-    public enum Direction {left, right, up, down};
+    public enum Direction
+    {
+        up,
+        left,
+        right,
+        down
+    };
 
     public Direction currentDirection;
     private Direction nextDirection;
@@ -50,22 +56,6 @@ public class MovementController : MonoBehaviour
         }
     }
 
-    public static Direction OppositeDirection(Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.left:
-                return Direction.right;
-            case Direction.right:
-                return Direction.left;
-            case Direction.up:
-                return Direction.down;
-            case Direction.down:
-            default:
-                return Direction.up;
-        }
-    }
-
     private bool AllowedDirection(Direction direction)
     {
         switch (currentDirection)
@@ -78,6 +68,27 @@ public class MovementController : MonoBehaviour
                 return (direction == Direction.left || direction == Direction.right);
             default:
                 return false;
+        }
+    }
+
+    public static Direction GetDirection(Vector2 startingPosition, Vector2 endingPosition)
+    {
+        Vector2 relativeVector = endingPosition - startingPosition;
+        if (relativeVector.x > float.Epsilon)
+        {
+            return Direction.right;
+        }
+        else if (relativeVector.x < -float.Epsilon)
+        {
+            return Direction.left;
+        }
+        else if (relativeVector.y > float.Epsilon)
+        {
+            return Direction.up;
+        }
+        else
+        {
+            return Direction.down;
         }
     }
 }
