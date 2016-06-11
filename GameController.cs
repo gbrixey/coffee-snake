@@ -3,6 +3,8 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 /// <summary>
 /// Controls the game status, scoring, and also controls the BoardController.
@@ -15,9 +17,12 @@ public class GameController : MonoBehaviour
     private Text titleText;
     private Button startButton;
     private Text startButtonText;
+    private Button quitButton;
     private Text messageText;
     private Text scoreText;
     private Text highScoreText;
+
+    private static string highScorePath = Application.persistentDataPath + "/highscore.gd";
 
     private int score = 0;
     private int highScore = 0;
@@ -25,7 +30,7 @@ public class GameController : MonoBehaviour
     public bool canMove = false;
     private bool isReplay = false;
 
-    void Awake()
+    private void Awake()
     {
         if (sharedInstance == null)
         {
@@ -37,7 +42,16 @@ public class GameController : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
+        LoadHighScore();
         InitializeLevel();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKey("escape"))
+        {
+            Application.Quit();
+        }
     }
 
     private void OnLevelWasLoaded(int index)
@@ -49,6 +63,7 @@ public class GameController : MonoBehaviour
         blackScreen.SetActive(false);
         titleText.gameObject.SetActive(false);
         startButton.gameObject.SetActive(false);
+        quitButton.gameObject.SetActive(false);
         canMove = true;
     }
 
@@ -66,12 +81,14 @@ public class GameController : MonoBehaviour
         titleText = GameObject.Find("TitleText").GetComponent<Text>();
         startButton = GameObject.Find("StartButton").GetComponent<Button>();
         startButtonText = GameObject.Find("StartButtonText").GetComponent<Text>();
+        quitButton = GameObject.Find("QuitButton").GetComponent<Button>();
         messageText = GameObject.Find("MessageText").GetComponent<Text>();
         scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
         highScoreText = GameObject.Find("HighScoreText").GetComponent<Text>();
         highScoreText.text = "HIGH SCORE: " + highScore;
 
         startButton.onClick.AddListener(new UnityAction(StartButtonClicked));
+        quitButton.onClick.AddListener(new UnityAction(QuitButtonClicked));
     }
 
     public void IncrementScore()
@@ -102,12 +119,14 @@ public class GameController : MonoBehaviour
             highScore = score;
             highScoreText.text = "HIGH SCORE: " + highScore;
             messageText.text = "NEW HIGH SCORE!";
+            SaveHighScore();
         }
 
         // Do not activate blackScreen because the player
         // needs to see the high score and the dead snake.
         titleText.gameObject.SetActive(true);
         startButton.gameObject.SetActive(true);
+        quitButton.gameObject.SetActive(true);
         isReplay = true;
     }
         
@@ -129,7 +148,41 @@ public class GameController : MonoBehaviour
             blackScreen.SetActive(false);
             titleText.gameObject.SetActive(false);
             startButton.gameObject.SetActive(false);
+            quitButton.gameObject.SetActive(false);
             canMove = true;
         }
+    }
+
+    /// <summary>
+    /// Handles the quit button OnClick event. Quits the application.
+    /// </summary>
+    private void QuitButtonClicked()
+    {
+        Application.Quit();
+    }
+
+    /// <summary>
+    /// Tries to load an existing high score from the game data file.
+    /// </summary>
+    private void LoadHighScore()
+    {
+        if (File.Exists(highScorePath))
+        {
+            FileStream file = File.OpenRead(highScorePath);
+            BinaryFormatter bf = new BinaryFormatter();
+            highScore = (int)bf.Deserialize(file);
+            file.Close();
+        }
+    }
+
+    /// <summary>
+    /// Saves the high score to a game data file.
+    /// </summary>
+    private void SaveHighScore()
+    {
+        FileStream file = File.Create(highScorePath);
+        BinaryFormatter bf = new BinaryFormatter();
+        bf.Serialize(file, highScore);
+        file.Close();
     }
 }

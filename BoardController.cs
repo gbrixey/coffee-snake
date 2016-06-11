@@ -26,7 +26,7 @@ public class BoardController : MonoBehaviour
 
     private HashSet<Vector2> unoccupiedPositions = new HashSet<Vector2>();
 
-    void Awake()
+    private void Awake()
     {
         if (sharedInstance == null)
         {

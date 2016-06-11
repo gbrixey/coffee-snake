@@ -43,7 +43,7 @@ public class SpriteController : MonoBehaviour
         dead
     }
 
-    void Awake()
+    private void Awake()
     {
         if (sharedInstance == null)
         {

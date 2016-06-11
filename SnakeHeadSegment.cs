@@ -19,7 +19,7 @@ public class SnakeHeadSegment : SnakeSegment
         movementController = GetComponent<MovementController>();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (GameController.sharedInstance.canMove)
         {

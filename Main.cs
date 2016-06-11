@@ -11,7 +11,7 @@ public class Main : MonoBehaviour
     public SpriteController spriteController;
     public BoardController boardController;
 
-    void Awake()
+    private void Awake()
     {
         if (SpriteController.sharedInstance == null)
         {

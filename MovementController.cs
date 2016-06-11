@@ -33,14 +33,14 @@ public class MovementController : MonoBehaviour
     /// </summary>
     private Direction nextDirection;
 
-    void Awake()
+    private void Awake()
     {
         Time.timeScale = initialTimeScale;
         currentDirection = Direction.right;
         nextDirection = Direction.right;
     }
 
-    void Update()
+    private void Update()
     {
         // Determine which direction the player wants to move and if this
         // is an allowed direction, and if so, update nextDirection accordingly.
