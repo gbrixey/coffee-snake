@@ -11,12 +11,16 @@ public class MovementController : MonoBehaviour
         down
     };
 
+    public const float initialTimeScale = 0.08f;
+    public const float timeScaleIncrement = 0.002f;
+    public const float maximumTimeScale = 0.18f;
+
     public Direction currentDirection;
     private Direction nextDirection;
 
     void Awake()
     {
-        Time.timeScale = 0.08f;
+        Time.timeScale = initialTimeScale;
         currentDirection = Direction.right;
         nextDirection = Direction.right;
     }
@@ -50,9 +54,9 @@ public class MovementController : MonoBehaviour
 
     public void IncreaseMovementSpeed()
     {
-        if (Time.timeScale < 0.16)
+        if (Time.timeScale < maximumTimeScale)
         {
-            Time.timeScale += 0.002f;
+            Time.timeScale += timeScaleIncrement;
         }
     }
 

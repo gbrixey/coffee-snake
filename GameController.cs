@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class GameController : MonoBehaviour
@@ -16,6 +17,7 @@ public class GameController : MonoBehaviour
             Destroy(gameObject);
         }
 
+        DontDestroyOnLoad(gameObject);
         BoardController.sharedInstance.CreateWalls();
         BoardController.sharedInstance.InitializeSnake();
         BoardController.sharedInstance.PlaceCoffee();
@@ -25,5 +27,10 @@ public class GameController : MonoBehaviour
     {
         enabled = false;
         BoardController.sharedInstance.enabled = false;
+    }
+
+    private void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -7,7 +7,7 @@ public class SnakeHeadSegment : SnakeSegment
     public MovementController movementController;
     private BoxCollider2D boxCollider;
 
-    private float movementAmount = 1.0f;
+    private const float movementAmount = 1.0f;
     private bool addSegmentOnNextMove = false;
 
     protected override void Awake()
@@ -96,17 +96,11 @@ public class SnakeHeadSegment : SnakeSegment
             }
             else
             {
+                MoveTo(newPosition);
                 Coffee coffee = hit.transform.GetComponent<Coffee>();
                 if (coffee != null)
                 {
-                    MoveTo(newPosition);
-                    BoardController.sharedInstance.MoveCoffee(coffee.gameObject);
-                    movementController.IncreaseMovementSpeed();
-                    addSegmentOnNextMove = true;
-                }
-                else
-                {
-                    MoveTo(newPosition);
+                    DrinkCoffee();
                 }
             }
         }
@@ -135,5 +129,12 @@ public class SnakeHeadSegment : SnakeSegment
                 break;
         }
         return newPosition;
+    }
+
+    private void DrinkCoffee()
+    {
+        BoardController.sharedInstance.MoveCoffee();
+        movementController.IncreaseMovementSpeed();
+        addSegmentOnNextMove = true;
     }
 }

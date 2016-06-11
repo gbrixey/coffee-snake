@@ -123,12 +123,13 @@ public class BoardController : MonoBehaviour
 
     public void PlaceCoffee()
     {
-        GameObject newCoffee = Instantiate(coffee, new Vector3(1.0f, 1.0f, 1.0f), Quaternion.identity) as GameObject;
-        MoveCoffee(newCoffee);
+        Instantiate(coffee, new Vector3(1.0f, 1.0f, 1.0f), Quaternion.identity);
+        MoveCoffee();
     }
 
-    public void MoveCoffee(GameObject coffeeToMove)
+    public void MoveCoffee()
     {
+        GameObject coffeeToMove = GameObject.FindGameObjectWithTag("Coffee");
         Vector2 oldPosition = coffeeToMove.transform.position;
         int count = unoccupiedPositions.Count;
         Vector2[] unoccupiedPositionsArray = new Vector2[count];
