@@ -43,18 +43,18 @@ public class SpriteController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public Sprite GetSnakeHeadSprite(Direction movementDirection, bool bite)
+    public Sprite GetSnakeHeadSprite(Direction movementDirection, bool bite, bool dead)
     {
         switch (movementDirection)
         {
             case Direction.up:
-                return bite ? SpriteController.sharedInstance.upBiteSprite : SpriteController.sharedInstance.upHeadSprite;
+                return dead ? upDeadSprite : (bite ? upBiteSprite : upHeadSprite);
             case Direction.left:
-                return bite ? SpriteController.sharedInstance.leftBiteSprite : SpriteController.sharedInstance.leftHeadSprite;
+                return dead ? leftDeadSprite : (bite ? leftBiteSprite : leftHeadSprite);
             case Direction.right:
-                return bite ? SpriteController.sharedInstance.rightBiteSprite : SpriteController.sharedInstance.rightHeadSprite;
+                return dead ? rightDeadSprite : (bite ? rightBiteSprite : rightHeadSprite);
             case Direction.down:
-                return bite ? SpriteController.sharedInstance.downBiteSprite : SpriteController.sharedInstance.downHeadSprite;
+                return dead ? downDeadSprite : (bite ? downBiteSprite : downHeadSprite);
             default:
                 return null;
         }
@@ -65,13 +65,13 @@ public class SpriteController : MonoBehaviour
         switch (previousSegmentDirection)
         {
             case Direction.up:
-                return SpriteController.sharedInstance.downTailSprite;
+                return downTailSprite;
             case Direction.left:
-                return SpriteController.sharedInstance.rightTailSprite;
+                return rightTailSprite;
             case Direction.right:
-                return SpriteController.sharedInstance.leftTailSprite;
+                return leftTailSprite;
             case Direction.down:
-                return SpriteController.sharedInstance.upTailSprite;
+                return upTailSprite;
             default:
                 return null;
         }

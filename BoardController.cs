@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
+using Random = UnityEngine.Random;
 using System.Collections;
 using System.Collections.Generic;
-using Random = UnityEngine.Random;
 
 public class BoardController : MonoBehaviour
 {

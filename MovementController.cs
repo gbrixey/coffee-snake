@@ -11,9 +11,9 @@ public class MovementController : MonoBehaviour
         down
     };
 
-    public const float initialTimeScale = 0.08f;
-    public const float timeScaleIncrement = 0.002f;
-    public const float maximumTimeScale = 0.18f;
+    private const float initialTimeScale = 0.08f;
+    private const float timeScaleIncrement = 0.002f;
+    private const float maximumTimeScale = 0.18f;
 
     public Direction currentDirection;
     private Direction nextDirection;
@@ -58,6 +58,11 @@ public class MovementController : MonoBehaviour
         {
             Time.timeScale += timeScaleIncrement;
         }
+    }
+
+    public static bool IsMaximumSpeed()
+    {
+        return Time.timeScale >= maximumTimeScale;
     }
 
     private bool AllowedDirection(Direction direction)

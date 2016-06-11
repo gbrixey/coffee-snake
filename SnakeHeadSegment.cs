@@ -19,7 +19,7 @@ public class SnakeHeadSegment : SnakeSegment
 
     void FixedUpdate()
     {
-        if (enabled)
+        if (GameController.sharedInstance.canMove)
         {
             movementController.UpdateDirection();
             AttemptMoveTo(NextPosition());
@@ -28,22 +28,8 @@ public class SnakeHeadSegment : SnakeSegment
 
     private void OnDisable()
     {
-        Direction nextSegmentDirection = MovementController.GetDirection(nextSegment.transform.position, transform.position);
-        switch (nextSegmentDirection)
-        {
-            case Direction.up:
-                spriteRenderer.sprite = SpriteController.sharedInstance.upDeadSprite;
-                break;
-            case Direction.left:
-                spriteRenderer.sprite = SpriteController.sharedInstance.leftDeadSprite;
-                break;
-            case Direction.right:
-                spriteRenderer.sprite = SpriteController.sharedInstance.rightDeadSprite;
-                break;
-            case Direction.down:
-                spriteRenderer.sprite = SpriteController.sharedInstance.downDeadSprite;
-                break;
-        }
+        Direction movementDirection = MovementController.GetDirection(nextSegment.transform.position, transform.position);
+        spriteRenderer.sprite = SpriteController.sharedInstance.GetSnakeHeadSprite(movementDirection, false, true);
     }
 
     public override void UpdateSprite()
@@ -53,7 +39,7 @@ public class SnakeHeadSegment : SnakeSegment
         boxCollider.enabled = true;
 
         bool aboutToGetCoffee = (hit.transform != null && hit.transform.GetComponent<Coffee>() != null);
-        spriteRenderer.sprite = SpriteController.sharedInstance.GetSnakeHeadSprite(movementController.currentDirection, aboutToGetCoffee);
+        spriteRenderer.sprite = SpriteController.sharedInstance.GetSnakeHeadSprite(movementController.currentDirection, aboutToGetCoffee, false);
     }
 
     protected override void MoveTo(Vector2 newPosition)
@@ -135,6 +121,7 @@ public class SnakeHeadSegment : SnakeSegment
     {
         BoardController.sharedInstance.MoveCoffee();
         movementController.IncreaseMovementSpeed();
+        GameController.sharedInstance.IncrementScore();
         addSegmentOnNextMove = true;
     }
 }
