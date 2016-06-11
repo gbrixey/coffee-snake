@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 
+/// <summary>
+/// Controls the game status, scoring, and also controls the BoardController.
+/// </summary>
 public class GameController : MonoBehaviour
 {
     public static GameController sharedInstance = null;
@@ -18,6 +21,7 @@ public class GameController : MonoBehaviour
 
     private int score = 0;
     private int highScore = 0;
+    [HideInInspector]
     public bool canMove = false;
     private bool isReplay = false;
 
@@ -33,24 +37,30 @@ public class GameController : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-        Initialize();
+        InitializeLevel();
     }
 
     private void OnLevelWasLoaded(int index)
     {
-        Initialize();
+        InitializeLevel();
+        // Immediately deactivate the UI elements and allow movement.
+        // At this point the user has already died once,
+        // so they don't need to see the start screen again.
         blackScreen.SetActive(false);
         titleText.gameObject.SetActive(false);
         startButton.gameObject.SetActive(false);
         canMove = true;
     }
 
-    private void Initialize()
+    /// <summary>
+    /// Initializes the level and gets references to UI elements.
+    /// </summary>
+    private void InitializeLevel()
     {
         score = 0;
         BoardController.sharedInstance.CreateWalls();
-        BoardController.sharedInstance.InitializeSnake();
-        BoardController.sharedInstance.PlaceCoffee();
+        BoardController.sharedInstance.CreateSnake();
+        BoardController.sharedInstance.CreateCoffee();
 
         blackScreen = GameObject.Find("BlackScreen");
         titleText = GameObject.Find("TitleText").GetComponent<Text>();
@@ -61,22 +71,30 @@ public class GameController : MonoBehaviour
         highScoreText = GameObject.Find("HighScoreText").GetComponent<Text>();
         highScoreText.text = "HIGH SCORE: " + highScore;
 
-        startButton.onClick.AddListener(new UnityAction(Restart));
+        startButton.onClick.AddListener(new UnityAction(StartButtonClicked));
     }
 
     public void IncrementScore()
     {
         score++;
         scoreText.text = "SCORE: " + score;
-        if (MovementController.IsMaximumSpeed())
-        {
-            messageText.text = "MAXIMUM SPEED!";
-        }
     }
 
+    public void ReachedMaximumSpeed()
+    {
+        messageText.text = "MAXIMUM SPEED!";
+    }
+
+    /// <summary>
+    /// Ends the game, disables the snake, updates the high score,
+    /// and displays UI elements allowing the player to restart the game.
+    /// </summary>
     public void GameOver()
     {
         canMove = false;
+        // Disable the board controller to disable the snake.
+        BoardController.sharedInstance.enabled = false;
+
         titleText.text = "DEAD";
         startButtonText.text = "RESTART";
         if (score > highScore)
@@ -86,20 +104,28 @@ public class GameController : MonoBehaviour
             messageText.text = "NEW HIGH SCORE!";
         }
 
+        // Do not activate blackScreen because the player
+        // needs to see the high score and the dead snake.
         titleText.gameObject.SetActive(true);
         startButton.gameObject.SetActive(true);
-        BoardController.sharedInstance.enabled = false;
         isReplay = true;
     }
-
-    private void Restart()
+        
+    /// <summary>
+    /// Handles the start button OnClick event. Starts or restarts the game.
+    /// </summary>
+    private void StartButtonClicked()
     {
         if (isReplay)
         {
+            // If the player is restarting the game, we need to reload the scene
+            // to reset the score and create a new snake.
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
         else
         {
+            // If the player is starting for the first time, the scene
+            // is already loaded. We just need to hide the UI elements.
             blackScreen.SetActive(false);
             titleText.gameObject.SetActive(false);
             startButton.gameObject.SetActive(false);

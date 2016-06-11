@@ -3,6 +3,10 @@ using Random = UnityEngine.Random;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Controls the game board and all of the game objects
+/// that occupy a physical position on the board.
+/// </summary>
 public class BoardController : MonoBehaviour
 {
     public static BoardController sharedInstance;
@@ -16,6 +20,7 @@ public class BoardController : MonoBehaviour
     public GameObject wall;
     public GameObject coffee;
 
+    // These transforms are to organize the game object hierarchy in Unity Editor.
     private Transform wallContainer;
     public Transform snakeSegmentContainer;
 
@@ -31,6 +36,9 @@ public class BoardController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        // Initialize set of unoccupied positions,
+        // excluding permanently occupied positions (walls)
         for (int row = 1; row < rows + 1; row++)
         {
             for (int column = 1; column < columns + 1; column++)
@@ -45,6 +53,9 @@ public class BoardController : MonoBehaviour
         snakeHead.enabled = false;
     }
 
+    /// <summary>
+    /// Creates the wall objects that enclose the playable area.
+    /// </summary>
     public void CreateWalls()
     {
         wallContainer = new GameObject("WallContainer").transform;
@@ -59,7 +70,8 @@ public class BoardController : MonoBehaviour
             wallInstance = Instantiate(wall, new Vector3(columns + 1.0f, row, 0.0f), Quaternion.identity) as GameObject;
             wallInstance.transform.SetParent(wallContainer);
         }
-        // Top and bottom
+        // Top and bottom.
+        // Avoid placing duplicate walls at the corners.
         for (int column = 1; column < columns + 1; column++)
         {
             wallInstance = Instantiate(wall, new Vector3(column, 0.0f, 0.0f), Quaternion.identity) as GameObject;
@@ -70,7 +82,10 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    public void InitializeSnake()
+    /// <summary>
+    /// Creates the snake. The snake starts with 6 segments.
+    /// </summary>
+    public void CreateSnake()
     {
         snakeSegmentContainer = new GameObject("SnakeSegmentContainer").transform;
 
@@ -79,21 +94,13 @@ public class BoardController : MonoBehaviour
         snakeHead.transform.SetParent(snakeSegmentContainer);
         SnakeEnteredPosition(position);
         position.x -= 1.0f;
-        SnakeSegment snakeBody1 = Instantiate(snakeBody, position, Quaternion.identity) as SnakeSegment;
-        snakeBody1.transform.SetParent(snakeSegmentContainer);
-        SnakeEnteredPosition(position);
+        SnakeSegment snakeBody1 = NewSnakeSegment(position);
         position.x -= 1.0f;
-        SnakeSegment snakeBody2 = Instantiate(snakeBody, position, Quaternion.identity) as SnakeSegment;
-        snakeBody2.transform.SetParent(snakeSegmentContainer);
-        SnakeEnteredPosition(position);
+        SnakeSegment snakeBody2 = NewSnakeSegment(position);
         position.x -= 1.0f;
-        SnakeSegment snakeBody3 = Instantiate(snakeBody, position, Quaternion.identity) as SnakeSegment;
-        snakeBody3.transform.SetParent(snakeSegmentContainer);
-        SnakeEnteredPosition(position);
+        SnakeSegment snakeBody3 = NewSnakeSegment(position);
         position.x -= 1.0f;
-        SnakeSegment snakeBody4 = Instantiate(snakeBody, position, Quaternion.identity) as SnakeSegment;
-        snakeBody4.transform.SetParent(snakeSegmentContainer);
-        SnakeEnteredPosition(position);
+        SnakeSegment snakeBody4 = NewSnakeSegment(position);
         position.x -= 1.0f;
         snakeTail = Instantiate(snakeTail, position, Quaternion.identity) as SnakeTailSegment;
         snakeTail.transform.SetParent(snakeSegmentContainer);
@@ -113,20 +120,31 @@ public class BoardController : MonoBehaviour
         snakeHead.enabled = true;
     }
 
+    /// <summary>
+    /// Creates a new snake body segment at the given position.
+    /// </summary>
     public SnakeSegment NewSnakeSegment(Vector3 position)
     {
-        SnakeSegment newSegment = Instantiate(BoardController.sharedInstance.snakeBody, position, Quaternion.identity) as SnakeSegment;
+        SnakeSegment newSegment = Instantiate(snakeBody, position, Quaternion.identity) as SnakeSegment;
         newSegment.transform.SetParent(snakeSegmentContainer);
         SnakeEnteredPosition((Vector2)position);
         return newSegment;
     }
 
-    public void PlaceCoffee()
+    /// <summary>
+    /// Initializes the coffee and places it somewhere on the board.
+    /// This should be called after CreateSnake to avoid placing the coffee
+    /// in the snake's starting position.
+    /// </summary>
+    public void CreateCoffee()
     {
         Instantiate(coffee, new Vector3(1.0f, 1.0f, 1.0f), Quaternion.identity);
         MoveCoffee();
     }
 
+    /// <summary>
+    /// Moves the coffee to a random unoccupied position on the board.
+    /// </summary>
     public void MoveCoffee()
     {
         GameObject coffeeToMove = GameObject.FindGameObjectWithTag("Coffee");
@@ -134,17 +152,26 @@ public class BoardController : MonoBehaviour
         int count = unoccupiedPositions.Count;
         Vector2[] unoccupiedPositionsArray = new Vector2[count];
         unoccupiedPositions.CopyTo(unoccupiedPositionsArray);
+        // Use count - 2 to avoid array out of bounds errors.
         Vector2 newPosition = unoccupiedPositionsArray[Random.Range(0, count - 2)];
         unoccupiedPositions.Remove(newPosition);
         unoccupiedPositions.Add(oldPosition);
         coffeeToMove.transform.position = newPosition;
     }
 
+    /// <summary>
+    /// Notifies the board controller that the snake has
+    /// occupied the given position.
+    /// </summary>
     public void SnakeEnteredPosition(Vector2 position)
     {
         unoccupiedPositions.Remove(position);
     }
 
+    /// <summary>
+    /// Notifies the board controller that the snake has
+    /// stopped occupying the given position.
+    /// </summary>
     public void SnakeLeftPosition(Vector2 position)
     {
         unoccupiedPositions.Add(position);

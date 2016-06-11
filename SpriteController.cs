@@ -2,6 +2,10 @@
 using System.Collections;
 using Direction = MovementController.Direction;
 
+/// <summary>
+/// Provides sprites to the snake segments based on
+/// their position relative to other snake segments.
+/// </summary>
 public class SpriteController : MonoBehaviour
 {
     public Sprite horizontalSprite;
@@ -29,6 +33,16 @@ public class SpriteController : MonoBehaviour
 
     public static SpriteController sharedInstance;
 
+    /// <summary>
+    /// The three different types of snake head sprite.
+    /// </summary>
+    public enum SnakeHeadSpriteType
+    {
+        normal,
+        biting,
+        dead
+    }
+
     void Awake()
     {
         if (sharedInstance == null)
@@ -43,23 +57,66 @@ public class SpriteController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public Sprite GetSnakeHeadSprite(Direction movementDirection, bool bite, bool dead)
+    /// <summary>
+    /// Gets the snake head sprite of the given type.
+    /// </summary>
+    public Sprite GetSnakeHeadSprite(Direction movementDirection, SnakeHeadSpriteType type)
     {
         switch (movementDirection)
         {
             case Direction.up:
-                return dead ? upDeadSprite : (bite ? upBiteSprite : upHeadSprite);
+                switch (type)
+                {
+                    case SnakeHeadSpriteType.biting:
+                        return upBiteSprite;
+                    case SnakeHeadSpriteType.dead:
+                        return upDeadSprite;
+                    case SnakeHeadSpriteType.normal:
+                    default:
+                        return upHeadSprite;
+                }
             case Direction.left:
-                return dead ? leftDeadSprite : (bite ? leftBiteSprite : leftHeadSprite);
+                switch (type)
+                {
+                    case SnakeHeadSpriteType.biting:
+                        return leftBiteSprite;
+                    case SnakeHeadSpriteType.dead:
+                        return leftDeadSprite;
+                    case SnakeHeadSpriteType.normal:
+                    default:
+                        return leftHeadSprite;
+                }
             case Direction.right:
-                return dead ? rightDeadSprite : (bite ? rightBiteSprite : rightHeadSprite);
+                switch (type)
+                {
+                    case SnakeHeadSpriteType.biting:
+                        return rightBiteSprite;
+                    case SnakeHeadSpriteType.dead:
+                        return rightDeadSprite;
+                    case SnakeHeadSpriteType.normal:
+                    default:
+                        return rightHeadSprite;
+                }
             case Direction.down:
-                return dead ? downDeadSprite : (bite ? downBiteSprite : downHeadSprite);
+                switch (type)
+                {
+                    case SnakeHeadSpriteType.biting:
+                        return downBiteSprite;
+                    case SnakeHeadSpriteType.dead:
+                        return downDeadSprite;
+                    case SnakeHeadSpriteType.normal:
+                    default:
+                        return downHeadSprite;
+                }
             default:
                 return null;
         }
     }
 
+    /// <summary>
+    /// Gets the snake tail sprite based on the
+    /// direction of the previous snake segment.
+    /// </summary>
     public Sprite GetSnakeTailSprite(Direction previousSegmentDirection)
     {
         switch (previousSegmentDirection)
@@ -77,6 +134,10 @@ public class SpriteController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets an appropriate snake body sprite for the given positions
+    /// of the previous and next snake segments.
+    /// </summary>
     public Sprite GetSnakeSegmentSprite(Direction previousSegmentDirection, Direction nextSegmentDirection)
     {
         switch (nextSegmentDirection)

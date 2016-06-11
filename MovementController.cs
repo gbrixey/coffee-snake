@@ -1,8 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Translates player input into a relative direction
+/// that determines where the snake will move next.
+/// </summary>
 public class MovementController : MonoBehaviour
 {
+    /// <summary>
+    /// Relative directions: up, left, right, and down.
+    /// </summary>
     public enum Direction
     {
         up,
@@ -15,7 +22,15 @@ public class MovementController : MonoBehaviour
     private const float timeScaleIncrement = 0.002f;
     private const float maximumTimeScale = 0.18f;
 
+    /// <summary>
+    /// The direction in which the snake is currently moving.
+    /// </summary>
     public Direction currentDirection;
+
+    /// <summary>
+    /// The next direction the snake should move,
+    /// according to player input and movement restrictions.
+    /// </summary>
     private Direction nextDirection;
 
     void Awake()
@@ -27,6 +42,8 @@ public class MovementController : MonoBehaviour
 
     void Update()
     {
+        // Determine which direction the player wants to move and if this
+        // is an allowed direction, and if so, update nextDirection accordingly.
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
         if (x > float.Epsilon && AllowedDirection(Direction.right))
@@ -47,6 +64,9 @@ public class MovementController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the snake's current movement direction to nextDirection.
+    /// </summary>
     public void UpdateDirection()
     {
         currentDirection = nextDirection;
@@ -57,16 +77,26 @@ public class MovementController : MonoBehaviour
         if (Time.timeScale < maximumTimeScale)
         {
             Time.timeScale += timeScaleIncrement;
+            if (Time.timeScale >= maximumTimeScale)
+            {
+                GameController.sharedInstance.ReachedMaximumSpeed();
+            }
         }
     }
 
-    public static bool IsMaximumSpeed()
-    {
-        return Time.timeScale >= maximumTimeScale;
-    }
-
+    /// <summary>
+    /// Whether or not the snake is allowed to move in the given direction.
+    /// </summary>
     private bool AllowedDirection(Direction direction)
     {
+        // Do not allow the snake to move in the exact opposite direction
+        // from the current direction, since this would mean the snake would
+        // immediately overlap itself and die.
+
+        // Also return false for the current direction in order to give
+        // priority to other directions in the Update function.
+        // i.e. if the snake is moving right and the user is holding down the
+        // right and down keys, we want to move the snake down.
         switch (currentDirection)
         {
             case Direction.left:
@@ -80,6 +110,10 @@ public class MovementController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets the relative direction from one position to another.
+    /// Assumes the positions only differ in one dimension (x or y).
+    /// </summary>
     public static Direction GetDirection(Vector2 startingPosition, Vector2 endingPosition)
     {
         Vector2 relativeVector = endingPosition - startingPosition;

@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Starts the game by instantiating the
+/// GameController and other singletons.
+/// </summary>
 public class Main : MonoBehaviour
 {
-    public GameObject gameController;
+    public GameController gameController;
     public SpriteController spriteController;
     public BoardController boardController;
 

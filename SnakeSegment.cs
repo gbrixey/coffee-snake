@@ -14,6 +14,10 @@ public class SnakeSegment : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    /// <summary>
+    /// Updates the snake segment sprite based on the position of the previous and next segments.
+    /// Should be called after the segments are finished moving.
+    /// </summary>
     public virtual void UpdateSprite()
     {
         Direction previousSegmentDirection = MovementController.GetDirection(transform.position, previousSegment.transform.position);
@@ -22,6 +26,10 @@ public class SnakeSegment : MonoBehaviour
         spriteRenderer.sprite = SpriteController.sharedInstance.GetSnakeSegmentSprite(previousSegmentDirection, nextSegmentDirection);
     }
 
+    /// <summary>
+    /// Moves the snake segment to the given position
+    /// and invokes MoveTo on the previous segment.
+    /// </summary>
     protected virtual void MoveTo(Vector2 newPosition)
     {
         Vector2 oldPosition = transform.position;
