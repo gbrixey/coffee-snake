@@ -22,7 +22,7 @@ public class GameController : MonoBehaviour
     private Text scoreText;
     private Text highScoreText;
 
-    private static string highScorePath = Application.persistentDataPath + "/highscore.gd";
+    private string highScorePath;
 
     private int score = 0;
     private int highScore = 0;
@@ -42,6 +42,7 @@ public class GameController : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
+        highScorePath = Application.persistentDataPath + "/highscore.gd";
         LoadHighScore();
         InitializeLevel();
     }
